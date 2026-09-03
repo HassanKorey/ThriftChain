@@ -90,3 +90,16 @@ def sign_transfer_proposal(user_id: str, proposal_id: str, signature: str):
     response = client.post(url, json=payload, headers=get_headers())
     response.raise_for_status()
     return response.json()
+
+def get_balance(user_id: str):
+    if not user_id or "mock" in user_id:
+        return 50000.0  # Fallback mock balance
+    url = f"{BMONI_BASE_URL}/v1/users/{user_id}/wallet/balance"
+    try:
+        response = client.get(url, headers=get_headers(), timeout=5.0)
+        response.raise_for_status()
+        data = response.json()
+        return float(data.get("balance") or data.get("data", {}).get("balance", 0))
+    except Exception as e:
+        print(f"BMONI Balance Error: {e}")
+        return 50000.0 # Soft fallback

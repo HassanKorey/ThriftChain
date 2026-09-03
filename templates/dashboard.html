@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ circle.name }} Dashboard | AjoChain</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        .stat-card {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--panel-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        .stat-card h3 {
+            font-size: 1rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .stat-card .value.success { color: #34d399; }
+        .schedule-list {
+            margin-top: 2rem;
+            background: rgba(15, 23, 42, 0.4);
+            border-radius: 12px;
+            padding: 1rem;
+        }
+        .schedule-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .schedule-item:last-child { border-bottom: none; }
+        .active-member { color: #34d399; font-weight: 600; }
+        .member-selector {
+            margin-bottom: 2rem;
+            text-align: right;
+        }
+        .member-selector select {
+            background: rgba(15, 23, 42, 0.8);
+            color: var(--text-main);
+            border: 1px solid var(--primary);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="background-effects">
+        <div class="glow-orb orb-1"></div>
+        <div class="glow-orb orb-2"></div>
+    </div>
+
+    <div class="container" style="max-width: 800px;">
+        <header class="hero" style="margin-bottom: 1rem;">
+            <img src="/static/logo.png" alt="AjoChain Logo" style="width: 60px; height: 60px; margin-bottom: 0.5rem; border-radius: 50%; box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);">
+            <h1>{{ circle.name }}</h1>
+            <p>Target: {{ circle.member_count_target }} Members | Active Cycle {{ current_cycle }}</p>
+        </header>
+
+        <main class="glass-panel">
+            <div class="member-selector">
+                <label style="margin-right: 0.5rem;">View Dashboard As: </label>
+                <select id="member-select" onchange="window.location.href='?member_id='+this.value">
+                    <option value="" disabled {% if not current_member %}selected{% endif %} hidden>Select Member...</option>
+                    {% for member in members %}
+                    <option value="{{ member.id }}" {% if current_member and current_member.id == member.id %}selected{% endif %}>
+                        {{ member.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            {% if current_member %}
+            <div class="dashboard-grid">
+                <div class="stat-card">
+                    <h3>Wallet Balance</h3>
+                    <div class="value">₦{{ "{:,.2f}".format(balance) }}</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Contribution Due</h3>
+                    <div class="value" style="color: #fbbf24;">₦{{ "{:,.2f}".format(circle.contribution_amount) }}</div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">Due by the 15th</div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 1.5rem;">
+                <button class="btn-primary" style="width: 100%;" onclick="makeContribution(event, '{{ circle.id }}', '{{ current_member.id }}')">Make Contribution</button>
+            </div>
+            {% else %}
+            <div style="text-align:center; padding: 2rem; color: var(--text-muted);">
+                Please select your name from the dropdown to view your personal dashboard.
+            </div>
+            {% endif %}
+
+            <div class="schedule-list">
+                <h3 style="margin-bottom: 1rem; border-bottom: 1px solid var(--panel-border); padding-bottom: 0.5rem;">Rotation Schedule</h3>
+                {% for member in members %}
+                {% set is_next = (member.rotation_position == recipient_pos) %}
+                <div class="schedule-item {% if is_next %}active-member{% endif %}">
+                    <div>
+                        <span style="opacity: 0.5; margin-right: 1rem;">#{{ member.rotation_position }}</span>
+                        {{ member.name }}
+                        {% if is_next %} <span style="font-size:0.8rem; background:rgba(52,211,153,0.2); padding:2px 8px; border-radius:12px; margin-left:8px;">Receives Pot Next</span>{% endif %}
+                    </div>
+                    <div>
+                        {% if is_next %}
+                            ₦{{ "{:,.2f}".format(circle.contribution_amount * circle.member_count_target) }}
+                        {% else %}
+                            Pending
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="schedule-list" style="margin-top: 1rem;">
+                <h3 style="margin-bottom: 1rem; border-bottom: 1px solid var(--panel-border); padding-bottom: 0.5rem;">Recent Transactions</h3>
+                {% if transactions %}
+                    {% for tx in transactions %}
+                    <div class="schedule-item">
+                        <div>
+                            {% set member_name = members | selectattr("id", "equalto", tx.member_id) | map(attribute="name") | first %}
+                            <span style="font-weight: 500;">{{ member_name }}</span> 
+                            <span style="color: var(--text-muted); font-size: 0.85rem; margin-left: 0.5rem;">Cycle {{ tx.cycle_number }}</span>
+                        </div>
+                        <div style="color: #34d399; font-weight: 600;">+₦{{ "{:,.2f}".format(tx.amount) }}</div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div style="text-align: center; color: var(--text-muted); padding: 1rem;">
+                        No transactions yet. (Complete Step 7 to see contributions!)
+                    </div>
+                {% endif %}
+            </div>
+        </main>
+    </div>
+
+    <script>
+    async function makeContribution(event, circleId, memberId) {
+        try {
+            const btn = event.target;
+            btn.disabled = true;
+            btn.textContent = "Processing Payment (Signing via BMONI Wallet)...";
+            
+            const response = await fetch(`/api/circles/${circleId}/contribute`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ member_id: parseInt(memberId) })
+            });
+            
+            if (!response.ok) {
+                const err = await response.json();
+                throw new Error(err.detail || "Payment failed");
+            }
+            
+            const data = await response.json();
+            if (data.payout_triggered) {
+                alert("Payment successful! The pot was full, so an automated payout has been triggered to the next recipient!");
+            } else {
+                alert("Payment successful! Your contribution has been recorded in the pool.");
+            }
+            window.location.reload();
+        } catch (error) {
+            alert("Error: " + error.message);
+            event.target.disabled = false;
+            event.target.textContent = "Make Contribution";
+        }
+    }
+    </script>
+</body>
+</html>
