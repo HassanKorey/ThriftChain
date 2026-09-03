@@ -108,7 +108,8 @@
     <a href="/logout" class="btn-logout">Logout</a>
 
     <div class="container" style="max-width: 800px;">
-        <header class="hero" style="margin-bottom: 2rem;">
+        <header class="hero" style="margin-bottom: 2rem; display: flex; align-items: center; justify-content: center; flex-direction: column;">
+            <img src="/static/logo.png" alt="AjoChain Logo" style="width: 70px; height: 70px; margin-bottom: 1rem; border-radius: 50%; box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);">
             <h1>Welcome, {{ current_user.name.split(' ')[0] }}</h1>
             <p>Your Personal Dashboard</p>
         </header>
