@@ -1,4 +1,5 @@
 import os
+import time
 import httpx
 from dotenv import load_dotenv
 
@@ -32,9 +33,26 @@ def submit_kyc(user_id: str, dob: str, gender: str, address: dict):
         "gender": gender,
         "address": address
     }
-    response = client.patch(url, json=payload, headers=get_headers())
-    response.raise_for_status()
-    return response.json()
+    
+    print("Waiting 2 seconds after user creation before submitting KYC...")
+    time.sleep(2)
+    
+    max_retries = 3
+    for attempt in range(1, max_retries + 1):
+        try:
+            print(f"BMONI KYC Attempt {attempt}/{max_retries} for user {user_id}...")
+            response = client.patch(url, json=payload, headers=get_headers())
+            response.raise_for_status()
+            print(f"BMONI KYC Attempt {attempt} successful!")
+            return response.json()
+        except Exception as e:
+            print(f"BMONI KYC Attempt {attempt} failed: {e}")
+            if attempt < max_retries:
+                print("Waiting 2 seconds before next attempt...")
+                time.sleep(2)
+            else:
+                print("All 3 retries exhausted. Raising exception to trigger fallback...")
+                raise e
 
 def get_owner_proof_challenge(user_id: str):
     url = f"{BMONI_BASE_URL}/v1/users/{user_id}/smart-wallets/owner-proof-challenges"
