@@ -10,6 +10,7 @@ class CircleCreate(BaseModel):
 class CircleResponse(BaseModel):
     id: int
     name: str
+    slug: str
     contribution_amount: float
     member_count_target: int
     created_at: datetime
@@ -17,26 +18,16 @@ class CircleResponse(BaseModel):
     class Config:
         from_attributes = True
 
-class MemberCreate(BaseModel):
+class UserCreate(BaseModel):
     name: str
     email: str
     phone: str
-    bvn: str
-    dob: str
-    gender: str
-    street: str
-    city: str
-    state: str
-    country: str
+    password: str
 
-class MemberResponse(BaseModel):
-    id: int
-    circle_id: int
-    name: str
-    bmoni_user_id: Optional[str]
-    wallet_address: Optional[str]
-    rotation_position: Optional[int]
-    joined_at: datetime
-    
-    class Config:
-        from_attributes = True
+class UserLogin(BaseModel):
+    email: str
+    password: str
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str

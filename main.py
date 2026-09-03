@@ -30,7 +30,8 @@ app = FastAPI(
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Import routers
-from routers import circles, members, payments
+from routers import circles, members, payments, auth
+app.include_router(auth.router)
 app.include_router(circles.router)
 app.include_router(members.router)
 app.include_router(payments.router)

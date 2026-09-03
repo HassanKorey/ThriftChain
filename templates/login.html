@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - AjoChain</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .auth-link {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        .auth-link a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .auth-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="background-effects">
+        <div class="glow-orb orb-1"></div>
+        <div class="glow-orb orb-2"></div>
+    </div>
+    
+    <div class="container">
+        <div class="hero">
+            <img src="/static/logo.png" alt="AjoChain Logo" style="width: 60px; height: 60px; margin-bottom: 0.5rem; border-radius: 50%; box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);">
+            <h1>Welcome Back</h1>
+            <p>Sign in to your AjoChain dashboard</p>
+        </div>
+        
+        <div class="glass-panel">
+            <div id="error-message" style="display: none; background: rgba(239, 68, 68, 0.2); color: #ef4444; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid rgba(239, 68, 68, 0.5);"></div>
+            <form id="loginForm">
+                <div class="input-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" required placeholder="john@example.com">
+                </div>
+                
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" required placeholder="••••••••">
+                </div>
+                
+                <button type="submit" class="btn-primary" id="submitBtn">Sign In</button>
+            </form>
+            <div class="auth-link">
+                Don't have an account? <a href="/register">Create one</a>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            const errorDiv = document.getElementById('error-message');
+            
+            btn.innerText = 'Signing in...';
+            btn.disabled = true;
+            errorDiv.style.display = 'none';
+            
+            const data = {
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value
+            };
+            
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                if (res.ok) {
+                    window.location.href = '/dashboard';
+                } else {
+                    const error = await res.json();
+                    errorDiv.innerText = error.detail || 'Login failed';
+                    errorDiv.style.display = 'block';
+                    btn.innerText = 'Sign In';
+                    btn.disabled = false;
+                }
+            } catch (err) {
+                errorDiv.innerText = 'Network error occurred';
+                errorDiv.style.display = 'block';
+                btn.innerText = 'Sign In';
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

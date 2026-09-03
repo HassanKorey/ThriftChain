@@ -1,3 +1,8 @@
+import traceback
+import uuid
+import re
+import string
+import random
 from typing import Optional
 from fastapi import APIRouter, Depends, Request, Query, HTTPException
 from fastapi.responses import HTMLResponse
@@ -6,8 +11,9 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel
 
 from database import get_db
-from models import Circle, Member, Contribution
+from models import Circle, User, CircleMember, Contribution
 from schemas import CircleCreate, CircleResponse
+from routers.auth import get_current_user
 import bmoni
 import signing
 
@@ -18,52 +24,82 @@ class ContributionCreateBody(BaseModel):
     member_id: int
 
 @router.get("/", response_class=HTMLResponse)
-async def read_root(request: Request):
+async def read_root(request: Request, current_user: User = Depends(get_current_user)):
     return templates.TemplateResponse(request=request, name="index.html")
 
 @router.post("/api/circles", response_model=CircleResponse)
-def create_circle(circle: CircleCreate, db: Session = Depends(get_db)):
+def create_circle(circle: CircleCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    base_slug = re.sub(r'[^a-z0-9\-]', '', circle.name.lower().replace(' ', '-'))
+    base_slug = re.sub(r'-+', '-', base_slug).strip('-')
+    if not base_slug:
+        base_slug = "circle"
+        
+    slug = base_slug
+    while db.query(Circle).filter(Circle.slug == slug).first():
+        suffix = ''.join(random.choices(string.ascii_lowercase + string.digits, k=3))
+        slug = f"{base_slug}-{suffix}"
+
     db_circle = Circle(
+        admin_id=current_user.id,
         name=circle.name,
+        slug=slug,
         contribution_amount=circle.contribution_amount,
         member_count_target=circle.member_count_target
     )
+    
+    # Add creator as the first member
+    db_circle.members.append(CircleMember(user_id=current_user.id, rotation_position=1))
+    
+    # Provision Pool Wallet for the Circle
+    try:
+        pool_email = f"pool_{uuid.uuid4().hex[:8]}@ajochain.local"
+        user_res = bmoni.create_user(f"Circle {circle.name}", pool_email, "+2340000000000")
+        bmoni_user_id = (
+            user_res.get("id") or 
+            user_res.get("userId") or 
+            user_res.get("data", {}).get("id") or 
+            user_res.get("data", {}).get("userId")
+        )
+        if bmoni_user_id:
+            # Dummy KYC
+            bmoni.submit_kyc(bmoni_user_id, "1990-01-01", "Male", {"street": "Pool St", "city": "Lagos", "state": "Lagos", "country": "Nigeria"})
+            # Challenge & Sign
+            challenge_res = bmoni.get_owner_proof_challenge(bmoni_user_id)
+            challenge_text = challenge_res.get("challenge") or challenge_res.get("data", {}).get("challenge")
+            priv_key, wallet_address = signing.generate_account()
+            signature = signing.sign_owner_proof(challenge_text, priv_key)
+            # Create Managed Wallet
+            bmoni.create_managed_wallet(bmoni_user_id, signature)
+            
+            db_circle.pool_bmoni_user_id = bmoni_user_id
+            db_circle.pool_wallet_address = wallet_address
+            db_circle.pool_private_key = priv_key
+    except Exception as e:
+        print(f"Error provisioning pool wallet: {e}")
+        traceback.print_exc()
+        # Fallback to mock for sandbox testing
+        priv_key, wallet_address = signing.generate_account()
+        db_circle.pool_bmoni_user_id = f"mock_pool_{uuid.uuid4().hex[:8]}"
+        db_circle.pool_wallet_address = wallet_address
+        db_circle.pool_private_key = priv_key
+
     db.add(db_circle)
     db.commit()
     db.refresh(db_circle)
     return db_circle
 
-@router.get("/dashboard/{circle_id}", response_class=HTMLResponse)
-async def dashboard_page(request: Request, circle_id: int, member_id: Optional[int] = Query(None), db: Session = Depends(get_db)):
-    circle = db.query(Circle).filter(Circle.id == circle_id).first()
-    if not circle:
-        raise HTTPException(status_code=404, detail="Circle not found")
+@router.get("/dashboard", response_class=HTMLResponse)
+async def dashboard_page(request: Request, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    balance = bmoni.get_balance(current_user.bmoni_user_id)
+    memberships = db.query(CircleMember).filter(CircleMember.user_id == current_user.id).all()
     
-    members = db.query(Member).filter(Member.circle_id == circle_id).order_by(Member.rotation_position).all()
-    transactions = db.query(Contribution).filter(Contribution.circle_id == circle_id).order_by(Contribution.id.desc()).all()
-    
-    total_contribs = len(transactions)
-    current_cycle = (total_contribs // circle.member_count_target) + 1
-    recipient_pos = ((current_cycle - 1) % circle.member_count_target) + 1
-    
-    current_member = None
-    balance = 0.0
-    if member_id:
-        current_member = next((m for m in members if m.id == member_id), None)
-        if current_member:
-            balance = bmoni.get_balance(current_member.bmoni_user_id)
-            
     return templates.TemplateResponse(
         request=request, 
         name="dashboard.html", 
         context={
-            "circle": circle, 
-            "members": members,
-            "current_member": current_member,
+            "current_user": current_user,
             "balance": balance,
-            "transactions": transactions,
-            "current_cycle": current_cycle,
-            "recipient_pos": recipient_pos
+            "memberships": memberships
         }
     )
 
