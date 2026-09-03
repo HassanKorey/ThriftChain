@@ -132,7 +132,7 @@
             <div class="circle-list">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--panel-border); padding-bottom: 0.5rem;">
                     <h3>Your Circles</h3>
-                    <a href="/" class="btn-primary" style="padding: 0.5rem 1rem; font-size: 0.9rem; text-decoration: none;">+ Create New</a>
+                    <a href="/create-circle" class="btn-primary" style="padding: 0.5rem 1rem; font-size: 0.9rem; text-decoration: none;">+ Create New</a>
                 </div>
 
                 {% if memberships %}
@@ -188,7 +188,7 @@
                 {% else %}
                     <div style="text-align: center; color: var(--text-muted); padding: 2rem; background: rgba(15,23,42,0.4); border-radius: 12px;">
                         You haven't joined any circles yet.<br><br>
-                        <a href="/" style="color: var(--primary);">Create one</a> or ask a friend for an invite link!
+                        <a href="/create-circle" style="color: var(--primary);">Create one</a> or ask a friend for an invite link!
                     </div>
                 {% endif %}
             </div>

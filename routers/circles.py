@@ -23,8 +23,14 @@ templates = Jinja2Templates(directory="templates")
 class ContributionCreateBody(BaseModel):
     member_id: int
 
-@router.get("/", response_class=HTMLResponse)
-async def read_root(request: Request, current_user: User = Depends(get_current_user)):
+from fastapi.responses import HTMLResponse, RedirectResponse
+
+@router.get("/")
+async def read_root():
+    return RedirectResponse(url="/dashboard", status_code=302)
+
+@router.get("/create-circle", response_class=HTMLResponse)
+async def create_circle_page(request: Request, current_user: User = Depends(get_current_user)):
     return templates.TemplateResponse(request=request, name="index.html")
 
 @router.post("/api/circles", response_model=CircleResponse)
