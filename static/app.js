@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 const circle = await response.json();
-                const inviteUrl = `${window.location.origin}/join/${circle.id}`;
+                const inviteUrl = `${window.location.origin}/join/${circle.slug}`;
                 inviteLinkInput.value = inviteUrl;
                 
                 resultContainer.classList.remove("hidden");
