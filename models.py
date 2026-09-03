@@ -23,6 +23,9 @@ class Circle(Base):
     pool_wallet_address: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     pool_private_key: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     
+    # Local accounting fallback
+    pool_balance: Mapped[float] = mapped_column(Float, default=0.0)
+    
     admin: Mapped["User"] = relationship(back_populates="circles_admin")
     members: Mapped[List["CircleMember"]] = relationship(back_populates="circle", cascade="all, delete-orphan")
     contributions: Mapped[List["Contribution"]] = relationship(back_populates="circle", cascade="all, delete-orphan")
@@ -41,6 +44,9 @@ class User(Base):
     bmoni_user_id: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     wallet_address: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     private_key: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    
+    # Local accounting fallback
+    wallet_balance: Mapped[float] = mapped_column(Float, default=50000.0)
     
     joined_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
     

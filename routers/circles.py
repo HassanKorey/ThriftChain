@@ -88,9 +88,23 @@ def create_circle(circle: CircleCreate, db: Session = Depends(get_db), current_u
     db.refresh(db_circle)
     return db_circle
 
+@router.delete("/api/circles/{circle_id}")
+def delete_circle(circle_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    circle = db.query(Circle).filter(Circle.id == circle_id).first()
+    if not circle:
+        raise HTTPException(status_code=404, detail="Circle not found")
+        
+    if circle.admin_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Only the circle admin can delete the circle")
+        
+    db.delete(circle)
+    db.commit()
+    
+    return {"status": "success", "detail": "Circle deleted successfully"}
+
 @router.get("/dashboard", response_class=HTMLResponse)
 async def dashboard_page(request: Request, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    balance = bmoni.get_balance(current_user.bmoni_user_id)
+    balance = current_user.wallet_balance
     memberships = db.query(CircleMember).filter(CircleMember.user_id == current_user.id).all()
     
     return templates.TemplateResponse(

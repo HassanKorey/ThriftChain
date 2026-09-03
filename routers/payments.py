@@ -66,6 +66,13 @@ def make_contribution(circle_id: int, db: Session = Depends(get_db), current_use
         cycle_number=current_cycle
     )
     db.add(contrib)
+    
+    # Local accounting: Deduct from user and add to pool
+    if current_user.wallet_balance < circle.contribution_amount:
+        raise HTTPException(status_code=400, detail="Insufficient funds in your smart wallet.")
+    current_user.wallet_balance -= circle.contribution_amount
+    circle.pool_balance += circle.contribution_amount
+    
     db.commit()
     
     cycle_contribs = db.query(Contribution).filter(
@@ -87,6 +94,14 @@ def make_contribution(circle_id: int, db: Session = Depends(get_db), current_use
         print(f"🎉 PAYOUT TRIGGERED! Pot size: ₦{circle.contribution_amount * circle.member_count_target}")
         print(f"--> Payout executing to: {recipient_user.name} ({recipient_user.wallet_address})")
         
+        
+        # Local accounting: Payout to recipient
+        payout_amount = circle.contribution_amount * circle.member_count_target
+        if circle.pool_balance >= payout_amount:
+            circle.pool_balance -= payout_amount
+            recipient_user.wallet_balance += payout_amount
+            db.commit()
+            
         try:
             pool_user_id = circle.pool_bmoni_user_id or "pool_admin"
             pool_wallet = circle.pool_wallet_address or "pool_wallet"
@@ -95,7 +110,7 @@ def make_contribution(circle_id: int, db: Session = Depends(get_db), current_use
                 user_id=pool_user_id,
                 smart_wallet_id=pool_wallet,
                 to_address=recipient_user.wallet_address,
-                amount=str(circle.contribution_amount * circle.member_count_target)
+                amount=str(payout_amount)
             )
             
             payout_proposal_id = payout_res.get("data", {}).get("id")
@@ -108,5 +123,6 @@ def make_contribution(circle_id: int, db: Session = Depends(get_db), current_use
         except Exception as e:
             print(f"BMONI Payout Transfer Error: {e}")
             pass
+            
             
     return {"status": "success", "payout_triggered": payout_triggered}
