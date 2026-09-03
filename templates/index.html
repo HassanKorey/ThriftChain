@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AjoChain | Digitize Savings Circles</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="background-effects">
+        <div class="glow-orb orb-1"></div>
+        <div class="glow-orb orb-2"></div>
+    </div>
+
+    <div class="container">
+        <header class="hero">
+            <h1>AjoChain</h1>
+            <p>The transparent, blockchain-powered Ajo savings circle.</p>
+        </header>
+
+        <main class="glass-panel">
+            <h2>Create a New Circle</h2>
+            <form id="create-circle-form">
+                <div class="input-group">
+                    <label for="name">Circle Name</label>
+                    <input type="text" id="name" name="name" placeholder="e.g. Family Savings 2026" required>
+                </div>
+                
+                <div class="input-group">
+                    <label for="amount">Contribution Amount (NGN)</label>
+                    <input type="number" id="amount" name="amount" placeholder="e.g. 10000" min="1000" required>
+                </div>
+                
+                <div class="input-group">
+                    <label for="members">Number of Members</label>
+                    <input type="number" id="members" name="members" placeholder="e.g. 4" min="2" max="12" required>
+                </div>
+
+                <button type="submit" class="btn-primary" id="submit-btn">Create Circle</button>
+            </form>
+
+            <div id="result-container" class="hidden">
+                <h3>Circle Created Successfully!</h3>
+                <p>Share this invite link with your members:</p>
+                <div class="invite-link-box">
+                    <input type="text" id="invite-link" readonly>
+                    <button id="copy-btn" class="btn-secondary">Copy</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

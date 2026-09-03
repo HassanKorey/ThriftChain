@@ -1,0 +1,9 @@
+.env
+.env.local
+.env.development
+__pycache__/
+*.pyc
+*.sqlite3
+.pytest_cache/
+venv/
+AjoChain_Agent_Brief.docx
