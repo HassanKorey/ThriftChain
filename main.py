@@ -23,7 +23,8 @@ app = FastAPI(
     title="AjoChain API",
     description="Digitizing traditional savings circles securely and transparently.",
     version="1.0.0",
-    lifespan=lifespan
+    lifespan=lifespan,
+    debug=True
 )
 
 # Mount static files
