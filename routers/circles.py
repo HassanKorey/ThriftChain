@@ -110,13 +110,42 @@ async def dashboard_page(request: Request, db: Session = Depends(get_db), curren
     balance = current_user.wallet_balance
     memberships = db.query(CircleMember).filter(CircleMember.user_id == current_user.id).all()
     
+    circle_stats = {}
+    for m in memberships:
+        circle = m.circle
+        
+        leaderboard = []
+        for member in circle.members:
+            user = db.query(User).filter(User.id == member.user_id).first()
+            total_contrib = sum(c.amount for c in circle.contributions if c.user_id == user.id)
+            leaderboard.append({
+                "name": user.name,
+                "total": total_contrib,
+                "position": member.rotation_position
+            })
+            
+        leaderboard.sort(key=lambda x: x["position"])
+        
+        total_contribs = len(circle.contributions)
+        current_cycle = (total_contribs // circle.member_count_target) + 1
+        recipient_pos = ((current_cycle - 1) % circle.member_count_target) + 1
+        
+        next_payout_user = next((item["name"] for item in leaderboard if item["position"] == recipient_pos), "Unknown")
+        
+        circle_stats[circle.id] = {
+            "leaderboard": leaderboard,
+            "next_payout_user": next_payout_user,
+            "current_cycle": current_cycle
+        }
+    
     return templates.TemplateResponse(
         request=request, 
         name="dashboard.html", 
         context={
             "current_user": current_user,
             "balance": balance,
-            "memberships": memberships
+            "memberships": memberships,
+            "circle_stats": circle_stats
         }
     )
 
