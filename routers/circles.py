@@ -97,8 +97,9 @@ def delete_circle(circle_id: int, db: Session = Depends(get_db), current_user: U
     if circle.admin_id != current_user.id:
         raise HTTPException(status_code=403, detail="Only the circle admin can delete the circle")
         
-    if circle.pool_balance > 0:
-        raise HTTPException(status_code=400, detail="Cannot delete a circle that holds active contributions in the pool.")
+    # Safeguard: Prevent deletion if any contributions have been made, OR if pool holds funds
+    if circle.pool_balance > 0 or db.query(Contribution).filter(Contribution.circle_id == circle_id).count() > 0:
+        raise HTTPException(status_code=400, detail="Cannot delete a circle once contributions have started.")
         
     db.delete(circle)
     db.commit()
