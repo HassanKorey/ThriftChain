@@ -30,9 +30,10 @@ app = FastAPI(
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Import routers
-from routers import circles, members
+from routers import circles, members, payments
 app.include_router(circles.router)
 app.include_router(members.router)
+app.include_router(payments.router)
 
 @app.get("/health")
 def health_check():

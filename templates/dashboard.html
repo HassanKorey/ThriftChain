@@ -101,11 +101,11 @@
             </div>
             
             <div style="margin-top: 1.5rem;">
-                <button class="btn-primary" style="width: 100%;" onclick="makeContribution(event, '{{ circle.id }}', '{{ current_member.id }}')">Make Contribution</button>
+                <button class="btn-primary" style="width: 100%;" onclick="makeContribution(event, '{{ circle.id }}', '{{ current_member.id }}')">Pay Contribution (₦{{ "{:,.2f}".format(circle.contribution_amount) }})</button>
             </div>
             {% else %}
-            <div style="text-align:center; padding: 2rem; color: var(--text-muted);">
-                Please select your name from the dropdown to view your personal dashboard.
+            <div style="text-align:center; padding: 2rem; color: var(--text-muted); background: rgba(15, 23, 42, 0.4); border-radius: 12px; margin-top: 2rem;">
+                Please select your name from the dropdown above to view your personal dashboard and pay your contribution.
             </div>
             {% endif %}
 
@@ -119,8 +119,9 @@
                         {{ member.name }}
                         {% if is_next %} <span style="font-size:0.8rem; background:rgba(52,211,153,0.2); padding:2px 8px; border-radius:12px; margin-left:8px;">Receives Pot Next</span>{% endif %}
                     </div>
-                    <div>
+                    <div style="text-align: right;">
                         {% if is_next %}
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">Total Pot Payout</div>
                             ₦{{ "{:,.2f}".format(circle.contribution_amount * circle.member_count_target) }}
                         {% else %}
                             Pending
@@ -134,13 +135,22 @@
                 <h3 style="margin-bottom: 1rem; border-bottom: 1px solid var(--panel-border); padding-bottom: 0.5rem;">Recent Transactions</h3>
                 {% if transactions %}
                     {% for tx in transactions %}
-                    <div class="schedule-item">
-                        <div>
+                    <div class="schedule-item" style="flex-direction: column;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
                             {% set member_name = members | selectattr("id", "equalto", tx.member_id) | map(attribute="name") | first %}
-                            <span style="font-weight: 500;">{{ member_name }}</span> 
-                            <span style="color: var(--text-muted); font-size: 0.85rem; margin-left: 0.5rem;">Cycle {{ tx.cycle_number }}</span>
+                            <span style="font-weight: 500;">Contribution (Cycle {{ tx.cycle_number }})</span>
+                            <span style="color: #34d399; font-weight: 600;">+₦{{ "{:,.2f}".format(tx.amount) }}</span>
                         </div>
-                        <div style="color: #34d399; font-weight: 600;">+₦{{ "{:,.2f}".format(tx.amount) }}</div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted); display: flex; justify-content: space-between;">
+                            <span>
+                                <strong style="color: var(--text-main);">From:</strong> {{ member_name }}'s Smart Wallet<br>
+                                <strong style="color: var(--text-main);">To:</strong> AjoChain Central Pool
+                            </span>
+                            <span style="text-align: right;">
+                                <span style="background: rgba(52,211,153,0.2); color: #34d399; padding: 2px 8px; border-radius: 12px;">Completed</span>
+                                <br><span style="opacity: 0.6; font-size: 0.75rem;">Signed on-chain</span>
+                            </span>
+                        </div>
                     </div>
                     {% endfor %}
                 {% else %}
