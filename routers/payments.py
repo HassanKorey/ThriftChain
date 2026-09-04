@@ -33,6 +33,9 @@ def make_contribution(circle_id: int, db: Session = Depends(get_db), current_use
     if existing:
         raise HTTPException(status_code=400, detail="You have already contributed for this cycle.")
         
+    if current_user.wallet_balance < circle.contribution_amount:
+        raise HTTPException(status_code=400, detail="Insufficient funds in your smart wallet. Please fund your wallet first.")
+        
     try:
         pool_address = circle.pool_wallet_address or "0xMockPoolAddressForSandbox"
         
@@ -68,8 +71,6 @@ def make_contribution(circle_id: int, db: Session = Depends(get_db), current_use
     db.add(contrib)
     
     # Local accounting: Deduct from user and add to pool
-    if current_user.wallet_balance < circle.contribution_amount:
-        raise HTTPException(status_code=400, detail="Insufficient funds in your smart wallet.")
     current_user.wallet_balance -= circle.contribution_amount
     circle.pool_balance += circle.contribution_amount
     
