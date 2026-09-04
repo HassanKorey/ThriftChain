@@ -35,3 +35,8 @@ class UserLogin(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
+
+class WithdrawRequest(BaseModel):
+    amount: float
+    bank_name: str
+    account_number: str
