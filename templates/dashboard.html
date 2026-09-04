@@ -351,11 +351,22 @@
         <div class="modal-content">
             <h3 style="color: #fff; margin-bottom: 0.5rem; font-size: 1.4rem;">Fund Your Wallet</h3>
             <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 2rem;">Transfer funds to your virtual account to top up your smart wallet.</p>
+            {% if current_user.email == "edunhassan1006@gmail.com" %}
             <div class="wallet-detail-box">
-                <div style="margin-bottom: 0.5rem;"><span style="color: var(--text-muted);">Bank:</span> Providus Bank</div>
-                <div style="margin-bottom: 0.5rem;"><span style="color: var(--text-muted);">Account:</span> <span style="color: #fff; font-size: 1.1rem;">102{{ (current_user.phone[-7:] if current_user.phone else "0000000") }}</span></div>
-                <div><span style="color: var(--text-muted);">Name:</span> AjoChain / {{ current_user.name }}</div>
+                <div style="margin-bottom: 0.5rem;"><span style="color: var(--text-muted);">Bank:</span> 9 Payment Service Bank</div>
+                <div style="margin-bottom: 0.5rem;"><span style="color: var(--text-muted);">Account:</span> <span style="color: #fff; font-size: 1.1rem;">6179424506</span></div>
+                <div><span style="color: var(--text-muted);">Name:</span> EDUN HASSAN AKOREDE</div>
             </div>
+            {% else %}
+            <div class="wallet-detail-box" style="text-align: center; color: var(--text-muted);">
+                <p style="margin-bottom: 1rem; font-size: 0.85rem;">Complete your BMONI KYC to generate your personalized virtual bank account.</p>
+                <div style="opacity: 0.5; text-align: left;">
+                    <div style="margin-bottom: 0.5rem;"><span style="color: var(--text-muted);">Bank:</span> Pending KYC</div>
+                    <div style="margin-bottom: 0.5rem;"><span style="color: var(--text-muted);">Account:</span> <span style="color: #fff; font-size: 1.1rem;">Pending KYC</span></div>
+                    <div><span style="color: var(--text-muted);">Name:</span> AjoChain / {{ current_user.name }}</div>
+                </div>
+            </div>
+            {% endif %}
             <div class="modal-actions">
                 <button class="btn-primary" onclick="document.getElementById('fundModal').style.display='none'">Done</button>
             </div>
