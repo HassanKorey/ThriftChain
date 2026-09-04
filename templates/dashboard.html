@@ -245,7 +245,12 @@
                 <div style="font-size: 3.5rem; font-weight: 700; color: #fff; line-height: 1.1; margin-bottom: 1rem;">₦{{ "{:,.2f}".format(balance) }}</div>
                 <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(0,0,0,0.3); padding: 0.4rem 0.8rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
                     <span style="color: var(--text-muted); font-size: 0.8rem;">BMONI Addr:</span>
-                    <span style="font-family: monospace; color: #fbbf24; font-size: 0.9rem;">{{ current_user.wallet_address }}</span>
+                    <span style="font-family: monospace; color: #fbbf24; font-size: 0.9rem;" id="user-bmoni-address">{{ current_user.wallet_address }}</span>
+                    <button onclick="copyAddress('user-bmoni-address')" style="background: none; border: none; cursor: pointer; color: var(--text-muted); display: flex; align-items: center; transition: color 0.2s;" title="Copy Address" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--text-muted)'">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/>
+                        </svg>
+                    </button>
                 </div>
             </div>
             <div class="hero-actions">
@@ -485,6 +490,15 @@
         const inviteLink = document.getElementById(elementId).href;
         navigator.clipboard.writeText(inviteLink).then(() => {
             alert("Invite link copied to clipboard!");
+        }).catch(err => {
+            console.error("Could not copy text: ", err);
+        });
+    }
+
+    function copyAddress(elementId) {
+        const addressText = document.getElementById(elementId).innerText;
+        navigator.clipboard.writeText(addressText).then(() => {
+            alert("Wallet address copied to clipboard!");
         }).catch(err => {
             console.error("Could not copy text: ", err);
         });
