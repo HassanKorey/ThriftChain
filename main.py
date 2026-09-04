@@ -20,7 +20,7 @@ async def lifespan(app: FastAPI):
 
 # Initialize FastAPI application
 app = FastAPI(
-    title="AjoChain API",
+    title="AjoLink API",
     description="Digitizing traditional savings circles securely and transparently.",
     version="1.0.0",
     lifespan=lifespan,

@@ -19,7 +19,7 @@ import signing
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
 
-SECRET_KEY = os.getenv("SECRET_KEY", "super-secret-key-for-ajochain-hackathon-2026")
+SECRET_KEY = os.getenv("SECRET_KEY", "super-secret-key-for-ajolink-hackathon-2026")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7 # 1 week
 
