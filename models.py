@@ -46,6 +46,10 @@ class User(Base):
     bmoni_user_id: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     wallet_address: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     private_key: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    kyc_status: Mapped[str] = mapped_column(String, default="pending")
+    bank_name: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    account_number: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    account_name: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     
     # Local accounting fallback
     wallet_balance: Mapped[float] = mapped_column(Float, default=50000.0)

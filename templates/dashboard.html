@@ -356,20 +356,26 @@
         <div class="modal-content">
             <h3 style="color: #fff; margin-bottom: 0.5rem; font-size: 1.4rem;">Fund Your Wallet</h3>
             <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 2rem;">Transfer funds to your virtual account to top up your smart wallet.</p>
-            {% if current_user.email == "edunhassan1006@gmail.com" %}
+            {% if current_user.email == "edunhassan1006@gmail.com" and current_user.kyc_status != "completed" %}
             <div class="wallet-detail-box">
                 <div style="margin-bottom: 0.5rem;"><span style="color: var(--text-muted);">Bank:</span> 9 Payment Service Bank</div>
                 <div style="margin-bottom: 0.5rem;"><span style="color: var(--text-muted);">Account:</span> <span style="color: #fff; font-size: 1.1rem;">6179424506</span></div>
                 <div><span style="color: var(--text-muted);">Name:</span> EDUN HASSAN AKOREDE</div>
             </div>
+            {% elif current_user.kyc_status == "completed" %}
+            <div class="wallet-detail-box">
+                <div style="margin-bottom: 0.5rem;"><span style="color: var(--text-muted);">Bank:</span> {{ current_user.bank_name }}</div>
+                <div style="margin-bottom: 0.5rem;"><span style="color: var(--text-muted);">Account:</span> <span style="color: #fff; font-size: 1.1rem;">{{ current_user.account_number }}</span></div>
+                <div><span style="color: var(--text-muted);">Name:</span> {{ current_user.account_name }}</div>
+            </div>
             {% else %}
-            <div class="wallet-detail-box" style="text-align: center; color: var(--text-muted);">
-                <p style="margin-bottom: 1rem; font-size: 0.85rem;">Complete your BMONI KYC to generate your personalized virtual bank account.</p>
-                <div style="opacity: 0.5; text-align: left;">
-                    <div style="margin-bottom: 0.5rem;"><span style="color: var(--text-muted);">Bank:</span> Pending KYC</div>
-                    <div style="margin-bottom: 0.5rem;"><span style="color: var(--text-muted);">Account:</span> <span style="color: #fff; font-size: 1.1rem;">Pending KYC</span></div>
-                    <div><span style="color: var(--text-muted);">Name:</span> ThriftCircle / {{ current_user.name }}</div>
+            <div id="kyc-form-container">
+                <p style="margin-bottom: 1rem; font-size: 0.85rem; color: var(--text-muted);">Complete your BMONI KYC to generate your personalized virtual bank account.</p>
+                <div style="text-align: left; margin-bottom: 1.2rem;">
+                    <label style="color: var(--text-muted); font-size: 0.85rem; font-weight: 500;">Enter BVN (11 digits)</label>
+                    <input type="text" id="kycBvn" placeholder="e.g. 22222222222" style="width: 100%; padding: 0.8rem; margin-top: 0.4rem; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); color: #fff; border-radius: 8px;">
                 </div>
+                <button class="btn-primary" id="submitKycBtn" onclick="submitKyc()" style="width: 100%; margin-bottom: 1rem;">Verify & Generate Account</button>
             </div>
             {% endif %}
             <div class="modal-actions">
@@ -549,6 +555,33 @@
             alert("Error: " + error.message);
             btn.disabled = false;
             btn.textContent = "Withdraw";
+        }
+    }
+    async function submitKyc() {
+        const bvn = document.getElementById("kycBvn").value;
+        if (!bvn || bvn.length < 10) {
+            alert("Please enter a valid BVN.");
+            return;
+        }
+        
+        const btn = document.getElementById("submitKycBtn");
+        btn.disabled = true;
+        btn.textContent = "Connecting to BMONI...";
+        
+        try {
+            const response = await fetch("/api/kyc/onboard", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ bvn: bvn })
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.detail || "KYC failed.");
+            alert(data.detail || "KYC successful!");
+            window.location.reload();
+        } catch (error) {
+            alert("Error: " + error.message);
+            btn.disabled = false;
+            btn.textContent = "Verify & Generate Account";
         }
     }
     </script>
