@@ -60,7 +60,7 @@ def create_circle(circle: CircleCreate, db: Session = Depends(get_db), current_u
     
     # Provision Pool Wallet for the Circle
     try:
-        pool_email = f"pool_{uuid.uuid4().hex[:8]}@ajolink.local"
+        pool_email = f"pool_{uuid.uuid4().hex[:8]}@thriftcircle.local"
         user_res = bmoni.create_user(f"Circle {circle.name}", pool_email, "+2340000000000")
         bmoni_user_id = (
             user_res.get("id") or 
