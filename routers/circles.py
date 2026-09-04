@@ -50,7 +50,9 @@ def create_circle(circle: CircleCreate, db: Session = Depends(get_db), current_u
         name=circle.name,
         slug=slug,
         contribution_amount=circle.contribution_amount,
-        member_count_target=circle.member_count_target
+        member_count_target=circle.member_count_target,
+        frequency=circle.frequency,
+        contribution_day=circle.contribution_day
     )
     
     # Add creator as the first member

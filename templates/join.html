@@ -18,7 +18,7 @@
             <img src="/static/logo.png" alt="AjoChain Logo" style="width: 60px; height: 60px; margin-bottom: 0.5rem; border-radius: 50%; box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);">
             <h1>Join Circle</h1>
             <p>You've been invited to join <strong>{{ circle.name }}</strong></p>
-            <p class="circle-details">Target: {{ circle.member_count_target }} members | Contribution: ₦{{ "{:,.2f}".format(circle.contribution_amount) }}</p>
+            <p class="circle-details">Target: {{ circle.member_count_target }} members | Contribution: ₦{{ "{:,.2f}".format(circle.contribution_amount) }} | Schedule: {{ circle.frequency }} on {{ circle.contribution_day }}</p>
         </header>
 
         <main class="glass-panel">

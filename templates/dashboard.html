@@ -142,6 +142,7 @@
                             <h3>{{ membership.circle.name }}</h3>
                                 Role: {% if membership.circle.admin_id == current_user.id %}Admin{% else %}Member{% endif %}<br>
                                 Target: {{ membership.circle.member_count_target }} Members<br>
+                                Schedule: {{ membership.circle.frequency }} on {{ membership.circle.contribution_day }}<br>
                                 Position in Rotation: #{{ membership.rotation_position }}<br>
                                 Pool Wallet: <span style="font-family: monospace; color: #34d399;">{{ membership.circle.pool_wallet_address[:8] }}...{{ membership.circle.pool_wallet_address[-6:] }}</span><br>
                                 Pool Balance: <span style="color: #34d399; font-weight: 600;">₦{{ "{:,.2f}".format(membership.circle.pool_balance) }}</span>

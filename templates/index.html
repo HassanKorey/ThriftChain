@@ -38,6 +38,21 @@
                     <input type="number" id="members" name="members" placeholder="e.g. 4" min="2" max="12" required>
                 </div>
 
+                <div class="input-group">
+                    <label for="frequency">Contribution Frequency</label>
+                    <select id="frequency" name="frequency" required style="width: 100%; padding: 0.8rem 1rem; background: rgba(0, 0, 0, 0.2); border: 1px solid var(--panel-border); border-radius: 8px; color: var(--text-main); font-family: 'Inter', sans-serif;">
+                        <option value="Daily">Daily</option>
+                        <option value="Weekly">Weekly</option>
+                        <option value="Bi-weekly">Bi-weekly</option>
+                        <option value="Monthly" selected>Monthly</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="contribution_day">Contribution Day</label>
+                    <input type="text" id="contribution_day" name="contribution_day" placeholder="e.g. Monday, or 15th" required>
+                </div>
+
                 <button type="submit" class="btn-primary" id="submit-btn">Create Circle</button>
             </form>
 

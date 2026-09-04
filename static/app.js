@@ -16,7 +16,9 @@ document.addEventListener("DOMContentLoaded", () => {
             const payload = {
                 name: document.getElementById("name").value,
                 contribution_amount: parseFloat(document.getElementById("amount").value),
-                member_count_target: parseInt(document.getElementById("members").value, 10)
+                member_count_target: parseInt(document.getElementById("members").value, 10),
+                frequency: document.getElementById("frequency").value,
+                contribution_day: document.getElementById("contribution_day").value
             };
 
             try {

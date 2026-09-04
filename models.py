@@ -16,6 +16,8 @@ class Circle(Base):
     slug: Mapped[str] = mapped_column(String, unique=True, index=True)
     contribution_amount: Mapped[float] = mapped_column(Float)
     member_count_target: Mapped[int] = mapped_column(Integer)
+    frequency: Mapped[str] = mapped_column(String, default="Monthly")
+    contribution_day: Mapped[str] = mapped_column(String, default="1st")
     created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
     
     # Pool Wallet fields for BMONI

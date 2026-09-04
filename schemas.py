@@ -6,6 +6,8 @@ class CircleCreate(BaseModel):
     name: str
     contribution_amount: float
     member_count_target: int
+    frequency: str
+    contribution_day: str
 
 class CircleResponse(BaseModel):
     id: int
@@ -13,6 +15,8 @@ class CircleResponse(BaseModel):
     slug: str
     contribution_amount: float
     member_count_target: int
+    frequency: str
+    contribution_day: str
     created_at: datetime
     
     class Config:
