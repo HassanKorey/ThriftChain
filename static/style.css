@@ -209,3 +209,8 @@ body {
     border-radius: 8px;
     color: var(--text-main);
 }
+
+select option {
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+}
