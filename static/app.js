@@ -7,6 +7,28 @@ document.addEventListener("DOMContentLoaded", () => {
         const submitBtn = document.getElementById("submit-btn");
         const copyBtn = document.getElementById("copy-btn");
 
+        const frequencySelect = document.getElementById("frequency");
+        const contributionDayGroup = document.getElementById("contribution_day_group");
+        const contributionDayInput = document.getElementById("contribution_day");
+
+        if (frequencySelect && contributionDayGroup) {
+            frequencySelect.addEventListener("change", (e) => {
+                if (e.target.value === "Daily") {
+                    contributionDayGroup.style.display = "none";
+                    contributionDayInput.removeAttribute("required");
+                    contributionDayInput.value = "Everyday";
+                } else {
+                    contributionDayGroup.style.display = "block";
+                    contributionDayInput.setAttribute("required", "required");
+                    if (contributionDayInput.value === "Everyday") {
+                        contributionDayInput.value = "";
+                    }
+                }
+            });
+            // trigger on load
+            frequencySelect.dispatchEvent(new Event('change'));
+        }
+
         form.addEventListener("submit", async (e) => {
             e.preventDefault();
             
